@@ -2,6 +2,8 @@
 
 namespace SerpScraper;
 
+use SerpScraper\Engine\GoogleSearch;
+
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\FileCookieJar;
 use GuzzleHttp\Exception\RequestException;
