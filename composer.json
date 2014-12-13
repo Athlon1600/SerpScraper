@@ -7,7 +7,8 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"SerpScraper\\": "src/"
+			"SerpScraper\\": "src/",
+			"SerpScraper\\Engine\\": "src/engine/"
 		}
 	}
 }
