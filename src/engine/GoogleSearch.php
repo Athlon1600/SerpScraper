@@ -204,8 +204,8 @@ class GoogleSearch extends SearchEngine {
 				// submit form - exception will be thrown if http status not valid
 				$req = $this->client->get('http://ipv4.google.com/sorry/CaptchaRedirect?'.http_build_query($vars));
 			
-				var_dump($req->getHeaders());
-				var_dump($req->getEffectiveURL());
+				//var_dump($req->getHeaders());
+				//var_dump($req->getEffectiveURL());
 			
 			} catch (RequestException $ex){
 				
