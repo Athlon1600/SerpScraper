@@ -89,8 +89,8 @@ class SearchEngineScraper {
 		} while(
 		count($this->serp_urls) < ($max_results * 0.95) && 
 		$has_next_page && 
-		$retry_count < $this->max_retry_count && 
-		$query_count < $this->max_query_count
+		$retry_count <= $this->max_retry_count && 
+		$query_count <= $this->max_query_count
 		);
 		
 		// what has caused us to break from the loop?
