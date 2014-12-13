@@ -5,7 +5,7 @@
 	"require": {
 		"guzzlehttp/guzzle": "~5.0"
 	},
-	"autolaoad": {
+	"autoload": {
 		"psr-4": {
 			"SerpScraper\\": "src/"
 		}
