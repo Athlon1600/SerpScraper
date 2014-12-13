@@ -6,6 +6,8 @@
 		"guzzlehttp/guzzle": "~5.0"
 	},
 	"autolaoad": {
-		"psr-0": {
-		fdsfdsf
+		"psr-4": {
+			"SerpScraper\\": "src/"
+		}
+	}
 }
