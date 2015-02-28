@@ -10,7 +10,7 @@ use GuzzleHttp\Exception\RequestException;
 
 abstract class SearchEngine
 {
-	protected $client;
+	public $client;
 	protected $results_per_page = 10;
 	
 	// let the SearchEngine class handle everything about profiles
