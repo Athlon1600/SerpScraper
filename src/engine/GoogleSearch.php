@@ -2,9 +2,7 @@
 
 namespace SerpScraper\Engine;
 
-use SerpScraper\Exception\NotFoundException;
 use SerpScraper\SearchEngine;
-use SerpScraper\CaptchaSolver;
 use SerpScraper\SearchResponse;
 
 use GuzzleHttp\Exception\RequestException;
@@ -13,6 +11,11 @@ class GoogleSearch extends SearchEngine {
 	
 	function __construct(){
 		parent::__construct();
+		
+		// sometimes google routes the connection through IPv6 which just makes this more difficult to deal with - force it to always use IPv4
+		$this->client->setDefaultOption('config/curl', array(
+			CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
+		));
 		
 		$this->preferences['results_per_page'] = 100;
 		$this->preferences['google_domain'] = 'google.com';
@@ -130,16 +133,7 @@ class GoogleSearch extends SearchEngine {
 		return $sr;
 	}
 	
-	public static function setCaptchaSolver(CaptchaSolver $captcha_solver){
-		self::$captcha_solver = $captcha_solver;
-	}
-	
-	public function solveCaptcha(){
-		
-		// do we have a valid captcha solver to use?
-		if(!self::$captcha_solver){
-			throw new NotFoundException('Resource: CaptchaSolver was not found!');
-		}
+	public function solveCaptcha(\CaptchaSolver $solver){
 		
 		$captcha_html = $this->client->get('http://ipv4.google.com/sorry/IndexRedirect', array('exceptions' => false));
 		
@@ -156,7 +150,7 @@ class GoogleSearch extends SearchEngine {
 			$img_bytes = $response->getBody();
 			
 			// read text from image
-			$text = self::$captcha_solver->decode($img_bytes);
+			$text = $solver->solve($img_bytes);
 			
 			$vars = array(
 				'continue' => $continue,
@@ -168,7 +162,10 @@ class GoogleSearch extends SearchEngine {
 			// submit form... hopefully this will set a cookie that will let you search again without throwing captcha
 			$response = $this->client->get('http://ipv4.google.com/sorry/CaptchaRedirect?'.http_build_query($vars));
 			
+			return $response->getStatusCode() == 200;
 		}
+		
+		return false;
 	}
 }
 

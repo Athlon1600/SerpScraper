@@ -17,12 +17,12 @@ class DeathByCaptcha implements CaptchaSolver {
 		file_put_contents($file, $bytes);
 		
 		// dbc has function for decoding files already
-		$text = $this->client->decode($file);
+		$response = $this->client->decode($file);
 		
 		// remove temp file
 		unlink($file);
 		
-		return $text;
+		return $response['text'];
 	}
 }
 
