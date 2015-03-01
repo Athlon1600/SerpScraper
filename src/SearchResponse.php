@@ -8,7 +8,7 @@ class SearchResponse {
 	public $error = '';
 	
 	// full html source from that page
-	public $page_html = '';
+	public $html = '';
 	
 	// true or false whether it has a next page
 	public $has_next_page = false;

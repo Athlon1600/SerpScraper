@@ -8,17 +8,18 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\FileCookieJar;
 use GuzzleHttp\Exception\RequestException;
 
-abstract class SearchEngine
-{
+abstract class SearchEngine {
+
 	public $client;
-	protected $results_per_page = 10;
 	
 	// let the SearchEngine class handle everything about profiles
 	private $profile_id;
-
+	
 	// cookie stuff
 	private $cookie_prefix = 'se_cookie_';
 	private $cookie_dir = '';
+	
+	protected $preferences = array();
 	
 	protected $agents = array(
 		"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5",
@@ -34,17 +35,7 @@ abstract class SearchEngine
 		"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)"
 	);
 	
-	function __construct($cookie_dir){
-	
-		// validate cookie dir
-		if(!is_dir($cookie_dir)){
-			throw new InvalidArgumentException('Cookie directory is invalid or non-existant!');
-		} else if(!is_writable($cookie_dir)){
-			throw new InvalidArgumentException('Cookie directory: '.$cookie_dir.' is not writable! Chmod it to 777 and try again.');
-		}
-		
-		// cookie_dir is valid?
-		$this->cookie_dir = $cookie_dir;
+	function __construct(){
 	
 		// init guzzle client!
 		$this->client = new Client();
@@ -52,11 +43,11 @@ abstract class SearchEngine
 		// request options
 		$options = array();
 
+		// user-agent will be set by setProfileID
 		$options['headers'] = array(
 			'Accept' => '*/*',
 			'Accept-Encoding' => 'gzip, deflate',
-			'Connection' => 'Keep-Alive',
-			'User-Agent' => 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0' // will be overwritten by profiler
+			'Connection' => 'Keep-Alive'
 		);
 		
 		// init options
@@ -64,65 +55,48 @@ abstract class SearchEngine
 			$this->client->setDefaultOption($key, $val);
 		}
 		
+		$this->setCookieDir(sys_get_temp_dir());
+		
 		// this will create an empty cookie
 		$this->setProfileID('default');
 	}
 	
-	function setResultsPerPage($num){
-		$this->results_per_page = $num;
+	public abstract function search($keywords, $page_num);
+	
+	public function setPreference($name, $value){
+		$this->preferences[$name] = $value;
 	}
 	
-	// matches username:password@host:port
-	public static function parseProxy($proxy_str){
-		
-		if(preg_match('/(?:(\w+):(\w+)@)?(\d+\.\d+\.\d+\.\d+):(\d+)/is', $proxy_str, $matches)){
-
-			$obj = array('host' => $matches[3], 'port' => $matches[4]);
-			
-			if($matches[1]){
-				$obj['username'] = $matches[1];
-				$obj['password'] = $matches[2];
-			}
-			
-			return $obj;
-		}
-		
-		return false;
-	}
-
-	function setProxy($proxy, $new_profile = true){
-	
-		// convert proxy string to proper array object
-		if(!is_array($proxy)){
-			$proxy = self::parseProxy($proxy);
-		}
-		
-		if(!isset($proxy['host']) || !isset($proxy['port'])){
-			return false;
-		}
-		
-		// host:port are required
-		$proxy_str = $proxy['host'].':'.$proxy['port'];
-		
-		// do we require authentication?
-		if(!empty($proxy['username'])){
-			$proxy_str = $proxy['username'].':'.$proxy['password'].'@'.$proxy_str;
-		}
+	// proxy must be in username:password@IP:Port format
+	final public function setProxy($proxy, $new_profile = true){
 		
 		$this->client->setDefaultOption('proxy', $proxy_str);
 		
-		// we want to use a different cookie profile for each proxy
+		// do we want to use a different cookie profile for this proxy?
 		if($new_profile){
 			$this->setProfileID($proxy['host']);
 		}
 	}
 	
-	function disableProxy(){
+	final public function disableProxy(){
 		$this->client->setDefaultOption('proxy', false);
 	}
 	
+	final public function setCookieDir($cookie_dir){
+	
+		// validate cookie dir
+		if(!is_dir($cookie_dir)){
+			throw new \InvalidArgumentException('Cookie directory is invalid or non-existant!');
+		} else if(!is_writable($cookie_dir)){
+			throw new \InvalidArgumentException('Cookie directory: '.$cookie_dir.' is not writable! Chmod it to 777 and try again.');
+		}
+		
+		// cookie_dir is valid?
+		$this->cookie_dir = $cookie_dir;
+	}
+	
 	// each profile uses different cookie file and user-agent
-	private function setProfileID($id){
+	final public function setProfileID($id){
 		$this->profile_id = $id;
 		
 		// generate random user agent using profile_id as salt
@@ -143,9 +117,6 @@ abstract class SearchEngine
 		
 		$this->client->setDefaultOption('cookies', $jar);
 	}
-	
-	public abstract function parseResults($raw_html);
-	public abstract function search($keywords, $page_num);
 }
 
 ?>

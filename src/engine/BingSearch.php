@@ -3,17 +3,55 @@
 namespace SerpScraper\Engine;
 
 use SerpScraper\SearchEngine;
+use SerpScraper\SearchResponse;
 
 class BingSearch extends SearchEngine {
 
-	private $rpp_allowed = array(10, 15, 30, 50);
-	
 	function __construct(){
 		parent::__construct();
+		
+		$this->preferences['results_per_page'] = 10;
+	}
+	
+	private function setResultsPerPage($count){
+	
+		$count_allowed = array(10, 15, 30, 50);
+		
+		if(!in_array($count, $count_allowed)){
+			throw new \InvalidArgumentException('Invalid number!');
+		}
+	
+		try {
+		
+			// open up the bing options page
+			$html_form = $this->client->get("http://www.bing.com/account/web")->getBody();
+			
+			// parse various session values from that page
+			preg_match_all('/<input[^>]*name="\b(guid|sid|ru|uid)\b"[^>]*value="(.*?)"/i', $html_form, $matches, PREG_SET_ORDER);
+			
+			if($matches){
+				
+				// change some of them
+				$options = array(
+					'rpp'		=> $count,
+					'pref_sbmt'	=> 1,
+				);
+				
+				foreach($matches as $match){
+					$options[$match[1]] = $match[2];
+				}
+				
+				// submit the form and get the cookie that determines the number of results per page
+				$this->client->get("http://www.bing.com/account/web", array('query' => $options), array());
+			}
+		
+		} catch (RequestException $ex){
+			// do nothing?
+		}
 	}
 	
 	// en-us, en-gb, it-IT, ru-RU...
-	function setMarket($search_market){
+	private function setSearchMarket($search_market){
 	
 		try {
 		
@@ -32,47 +70,19 @@ class BingSearch extends SearchEngine {
 		}
 	}
 	
+	// override
+	function setPreference($name, $value){
 	
-	function setResultsPerPage($num){
-	
-		if(!in_array($num, $this->rpp_allowed)){
-			throw new InvalidArgumentException('Invalid number!');
-		}
-	
-		try {
-		
-			// open up the bing options page
-			$html_form = $this->client->get("http://www.bing.com/account/web")->getBody();
-			
-			// parse various session values from that page
-			preg_match_all('/<input[^>]*name="\b(guid|sid|ru|uid)\b"[^>]*value="(.*?)"/i', $html_form, $matches, PREG_SET_ORDER);
-			
-			if($matches){
-				
-				// change some of them
-				$options = array(
-					'rpp'		=> $num,
-					'pref_sbmt'	=> 1,
-				);
-				
-				foreach($matches as $match){
-					$options[$match[1]] = $match[2];
-				}
-				
-				// submit the form and get the cookie that determines the number of results per page
-				$this->client->get("http://www.bing.com/account/web", array('query' => $options), array());
-			}
-		
-		} catch (RequestException $ex){
-			// do nothing?
+		if($name == 'search_market'){
+			$this->setSearchMarket($value);
 		}
 		
-		// call parent to update
-		parent::setResultsPerPage($num);
-		
-		return true;
+		if($name == 'results_per_page'){
+			$this->setResultsPerPage($value);
+		}
+
+		parent::setPreference($name, $value);
 	}
-	
 
 	function parseResults($html){
 	
@@ -91,16 +101,17 @@ class BingSearch extends SearchEngine {
 	}
 	
 	function search($query, $page = 1){
-		
+	
 		$sr = new SearchResponse();
-		$start = ($page-1) * $this->results_per_page + 1;
+		$start = ($page-1) * $this->preferences['results_per_page'] + 1;
 		
 		try {
 		
 			$response = $this->client->get("http://www.bing.com/search?q={$query}&first={$start}");
+			
 			// get HTML body
 			$body = $response->getBody();
-			$sr->raw_html = $body;
+			$sr->html = $body;
 			
 			$sr->results = $this->parseResults($body);
 			
