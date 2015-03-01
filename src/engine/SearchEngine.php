@@ -1,6 +1,6 @@
 <?php
 
-namespace SerpScraper;
+namespace SerpScraper\Engine;
 
 use SerpScraper\Engine\GoogleSearch;
 

@@ -1,11 +1,15 @@
 <?php
 
+namespace SerpScraper\Captcha;
+
+use SerpScraper\Captcha\CaptchaSolver;
+
 class DeathByCaptcha implements CaptchaSolver {
 
 	private $client;
 	
 	function __construct($username, $password){
-		$this->client = new DeathByCaptcha_SocketClient($username, $password);
+		$this->client = new \DeathByCaptcha_SocketClient($username, $password);
 	}
 	
 	function solve($bytes){

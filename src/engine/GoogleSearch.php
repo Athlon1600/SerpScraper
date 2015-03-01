@@ -2,9 +2,9 @@
 
 namespace SerpScraper\Engine;
 
-use SerpScraper\SearchEngine;
+use SerpScraper\Engine\SearchEngine;
 use SerpScraper\SearchResponse;
-
+use SerpScraper\Captcha\CaptchaSolver;
 use GuzzleHttp\Exception\RequestException;
 
 class GoogleSearch extends SearchEngine {
@@ -133,7 +133,7 @@ class GoogleSearch extends SearchEngine {
 		return $sr;
 	}
 	
-	public function solveCaptcha(\CaptchaSolver $solver){
+	public function solveCaptcha(CaptchaSolver $solver){
 		
 		$captcha_html = $this->client->get('http://ipv4.google.com/sorry/IndexRedirect', array('exceptions' => false));
 		
@@ -160,7 +160,9 @@ class GoogleSearch extends SearchEngine {
 			);
 			
 			// submit form... hopefully this will set a cookie that will let you search again without throwing captcha
-			$response = $this->client->get('http://ipv4.google.com/sorry/CaptchaRedirect?'.http_build_query($vars));
+			$response = $this->client->get('http://ipv4.google.com/sorry/CaptchaRedirect?'.http_build_query($vars), array('exceptions' => false));
+			
+			//echo $response->getBody();
 			
 			return $response->getStatusCode() == 200;
 		}

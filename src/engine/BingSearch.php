@@ -2,7 +2,7 @@
 
 namespace SerpScraper\Engine;
 
-use SerpScraper\SearchEngine;
+use SerpScraper\Engine\SearchEngine;
 use SerpScraper\SearchResponse;
 
 class BingSearch extends SearchEngine {
@@ -84,7 +84,7 @@ class BingSearch extends SearchEngine {
 		parent::setPreference($name, $value);
 	}
 
-	function parseResults($html){
+	function extractResults($html){
 	
 		// ads ID=SERP,5417.1,Ads	ID=SERP,5106.1
 		// bing local ID=SERP,5079.1 
@@ -113,7 +113,7 @@ class BingSearch extends SearchEngine {
 			$body = $response->getBody();
 			$sr->html = $body;
 			
-			$sr->results = $this->parseResults($body);
+			$sr->results = $this->extractResults($body);
 			
 			$sr->has_next_page = strpos($body, "\"sw_next\">Next") !== false;
 		

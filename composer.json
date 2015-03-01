@@ -8,7 +8,6 @@
 	"autoload": {
 		"psr-4": {
 			"SerpScraper\\": "src/"
-		},
-		"classmap": ["src/", "src/engine/", "src/exception/"]
+		}
 	}
 }
