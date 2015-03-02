@@ -8,6 +8,8 @@ use SerpScraper\Captcha\CaptchaSolver;
 use GuzzleHttp\Exception\RequestException;
 
 class GoogleSearch extends SearchEngine {
+
+	private $last_captcha_url = '';
 	
 	function __construct(){
 		parent::__construct();
@@ -144,7 +146,9 @@ class GoogleSearch extends SearchEngine {
 	
 	public function solveCaptcha(CaptchaSolver $solver){
 		
-		$captcha_html = $this->client->get('http://ipv4.google.com/sorry/IndexRedirect', array('exceptions' => false));
+		$continue = rawurlencode('http://www.'.$this->preferences['google_domain'].'/search?q=query');
+		
+		$captcha_html = $this->client->get('http://ipv4.google.com/sorry/IndexRedirect?continue='.$continue, array('exceptions' => false));
 		
 		// extract form values for submission
 		if(preg_match('/image\\?id=(\\d+)&amp;/', $captcha_html, $matches) && preg_match('/name="continue" value="([^"]+)/', $captcha_html, $matches2)){
@@ -169,6 +173,7 @@ class GoogleSearch extends SearchEngine {
 			);
 			
 			// submit form... hopefully this will set a cookie that will let you search again without throwing captcha
+			// GOOGLE_ABUSE_EXEMPTION lasts 3 hours
 			$response = $this->client->get('http://ipv4.google.com/sorry/CaptchaRedirect?'.http_build_query($vars), array('exceptions' => false));
 			
 			//echo $response->getBody();

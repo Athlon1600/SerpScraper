@@ -55,6 +55,12 @@ abstract class SearchEngine {
 			$this->client->setDefaultOption($key, $val);
 		}
 		
+		// let's put some timeouts in case of slow proxies
+		$this->client->setDefaultOption('config/curl', array(
+			CURLOPT_CONNECTTIMEOUT => 10,
+			CURLOPT_TIMEOUT => 15
+		));
+		
 		// get_current_user()
 		$this->setCookieDir(sys_get_temp_dir());
 		
@@ -71,11 +77,11 @@ abstract class SearchEngine {
 	// proxy must be in username:password@IP:Port format
 	final public function setProxy($proxy, $new_profile = true){
 		
-		$this->client->setDefaultOption('proxy', $proxy_str);
+		$this->client->setDefaultOption('proxy', $proxy);
 		
 		// do we want to use a different cookie profile for this proxy?
 		if($new_profile){
-			$this->setProfileID($proxy['host']);
+			$this->setProfileID($proxy);
 		}
 	}
 	
