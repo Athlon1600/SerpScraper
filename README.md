@@ -20,10 +20,10 @@ $dbc = new DeathByCaptcha("username", "password");
 	
 $google = new GoogleSearch();
 
-// 100 is already a default
+// all available preferences for Google
 $google->setPreference('results_per_page', 100);
-
 //$google->setPreference('google_domain', 'google.lt');
+//$google->setPreference('date_range', 'hour');
 
 $results = array();
 

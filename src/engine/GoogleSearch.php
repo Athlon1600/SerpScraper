@@ -76,6 +76,15 @@ class GoogleSearch extends SearchEngine {
 			'oe' => 'utf-8'
 		);
 		
+		if(isset($this->preferences['date_range'])){
+		
+			$str = substr($this->preferences['date_range'], 0, 1);
+			
+			if(in_array($str, array('h', 'd', 'w', 'm', 'y'))){
+				$vars['tbs'] = 'qdr:'.$str;
+			}
+		}
+		
 		// do query building ourselves to get the url
 		$url = 'http://www.'.$google_domain.'/search?'.http_build_query($vars, '', '&');
 		
