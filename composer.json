@@ -1,7 +1,7 @@
 {
 	"name": "athlon1600/serpscraper",
-	"version": "2.0",
 	"description": "PHP powered interface for querying the most popular Search Engines",
+	"license": "MIT",
 	"require": {
 		"guzzlehttp/guzzle": "~5.0"
 	},
