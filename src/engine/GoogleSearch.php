@@ -9,8 +9,6 @@ use GuzzleHttp\Exception\RequestException;
 
 class GoogleSearch extends SearchEngine {
 
-	private $last_captcha_url = '';
-	
 	function __construct(){
 		parent::__construct();
 		
@@ -93,9 +91,26 @@ class GoogleSearch extends SearchEngine {
 		return $url;
 	}
 	
-	// visits a special URL that disables ALL country redirects by setting a PREF cookie with options: FF=0:LD=en:CR=2
+	// visits a special URL that disables ALL country redirects 
 	function ncr(){
-		$this->client->get('http://www.google.com/ncr');
+	
+		// check if /ncr cookie has already been set
+		$ncr = false;
+		
+		// the cookie we're looking for should have these options: FF=0:LD=en:CR=2
+		$cookies = $this->client->getDefaultOption('cookies')->toArray();
+		
+		foreach($cookies as $cookie){
+			
+			if($cookie['Domain'] == '.google.com' && $cookie['Name'] == 'PREF' && strpos($cookie['Value'], 'CR=2') !== false){
+				$ncr = true;
+				break;
+			}
+		}
+		
+		if(!$ncr){
+			$this->client->get('http://www.google.com/ncr');
+		}
 	}
 	 
 	function search($query, $page_num = 1){
@@ -146,7 +161,7 @@ class GoogleSearch extends SearchEngine {
 	
 	public function solveCaptcha(CaptchaSolver $solver){
 		
-		$continue = rawurlencode('http://www.'.$this->preferences['google_domain'].'/search?q=query');
+		$continue = rawurlencode('http://www.'.$this->preferences['google_domain'].'/search?q=gmail');
 		
 		$captcha_html = $this->client->get('http://ipv4.google.com/sorry/IndexRedirect?continue='.$continue, array('exceptions' => false));
 		
