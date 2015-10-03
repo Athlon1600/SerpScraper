@@ -77,7 +77,7 @@ class GoogleSearch extends SearchEngine {
 		);
 		
 		if(isset($this->preferences['date_range'])){
-			if(is_array($this->preferences['date_range'])){ //check the value is array or not
+			if(!is_array($this->preferences['date_range'])){ //check the value is array or not
 				$str = substr($this->preferences['date_range'], 0, 1);
 				
 				if(in_array($str, array('h', 'd', 'w', 'm', 'y'))){
