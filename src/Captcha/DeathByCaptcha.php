@@ -2,8 +2,6 @@
 
 namespace SerpScraper\Captcha;
 
-require("deathbycaptcha.php");
-
 use SerpScraper\Captcha\CaptchaSolver;
 
 class DeathByCaptcha implements CaptchaSolver {

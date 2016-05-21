@@ -9,6 +9,9 @@
 	"autoload": {
 		"psr-4": {
 			"SerpScraper\\": "src/"
-		}
+		},
+		"files": [
+			"src/Captcha/dbc_api.php"
+		]
 	}
 }

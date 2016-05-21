@@ -104,6 +104,10 @@ abstract class SearchEngine {
 	
 	// each profile uses different cookie file and user-agent
 	final public function setProfileID($id){
+		
+		// Windows does not like special characters in filenames...
+		$id = str_replace(array('\\', '/', ':', '*', '?', '"', '<', '>', '|'), '-', $id);
+		
 		$this->profile_id = $id;
 		
 		// generate random user agent using profile_id as salt
@@ -118,6 +122,8 @@ abstract class SearchEngine {
 		
 		// generate cookie file based on profile_id
 		$cookie_file = $this->cookie_dir.'/'.$this->cookie_prefix.$this->profile_id.'.json';
+
+		// TODO: if this cookie_file already exists and was created by another USER, then writing to it will fail and RuntimeException will be thrown by Guzzle		
 		
 		// cookies will be stored here
 		$jar = new FileCookieJar($cookie_file);
