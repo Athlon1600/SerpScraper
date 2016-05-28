@@ -9,6 +9,8 @@ use GuzzleHttp\Exception\RequestException;
 
 class GoogleSearch extends SearchEngine {
 
+	private $last_captcha_url = '';
+	
 	function __construct(){
 		parent::__construct();
 		
@@ -145,6 +147,7 @@ class GoogleSearch extends SearchEngine {
 				// captcha found!
 				if($status_code == 503){
 					$sr->error = 'captcha';
+					$this->last_captcha_url = $response->getEffectiveUrl();
 				} else {
 					$sr->error = $status_code;
 				}
@@ -161,39 +164,49 @@ class GoogleSearch extends SearchEngine {
 	
 	public function solveCaptcha(CaptchaSolver $solver){
 		
-		$continue = rawurlencode('http://www.'.$this->preferences['google_domain'].'/search?q=facebook');
+		// once request is made, a new LAST_CAPTCHA_URL must be generated for it to work
+		if(!$this->last_captcha_url){
+			return false;
+		}
 		
-		// will give "Your client does not have permission" if IP is not yet blocked...
-		$captcha_html = $this->client->get('http://ipv4.google.com/sorry/IndexRedirect?continue='.$continue, array('exceptions' => false));
+		$captcha_html = $this->client->get($this->last_captcha_url, array('exceptions' => false));
+		
+		// TODO: check to make sure we're really on a captcha page
 		
 		// extract form values for submission
-		if(preg_match('/image\\?id=(\\d+)&amp;/', $captcha_html, $matches) && preg_match('/name="continue" value="([^"]+)/', $captcha_html, $matches2)){
+		if(preg_match('/<img src="([^"]+)"/', $captcha_html, $matches)){
 		
-			$id = $matches[1];
-			$img_url = "http://ipv4.google.com/sorry/image?id={$id}&hl=en";
+			// assumine PROTOCOL and HOST stay the same
+			$img_url = "http://ipv4.google.com/".htmlspecialchars_decode($matches[1]);
 			
-			$continue = $matches2[1];
+			// extract additional data from image query string
+			$query = parse_url($img_url, PHP_URL_QUERY);
+			
+			$vars = array();
+			parse_str($query, $vars);
 			
 			// download captcha image
 			$response = $this->client->get($img_url, array('exceptions' => false));
+			
+			// get raw bytes
 			$img_bytes = $response->getBody();
 			
 			// read text from image
 			$text = $solver->solve($img_bytes);
 			
-			$vars = array(
-				'continue' => $continue,
-				'id' => $id,
+			// form data
+			$data = array(
+				'q' => $vars['q'],
+				'continue' => $vars['continue'],
+				'id' => $vars['id'],
 				'captcha' => $text,
 				'submit' => 'Submit'
 			);
 			
 			// submit form... hopefully this will set a cookie that will let you search again without throwing captcha
 			// GOOGLE_ABUSE_EXEMPTION lasts 3 hours
-			$response = $this->client->get('http://ipv4.google.com/sorry/CaptchaRedirect?'.http_build_query($vars), array('exceptions' => false));
-			
-			//echo $response->getBody();
-			
+			$response = $this->client->get('http://ipv4.google.com/sorry/CaptchaRedirect?'.http_build_query($data), array('exceptions' => false));
+		
 			return $response->getStatusCode() == 200;
 		}
 		
