@@ -112,7 +112,9 @@ abstract class SearchEngine {
 		
 		// generate random user agent using profile_id as salt
 		$hash = md5($id);
-		$hash = substr($hash, 0, 8);
+		
+		// max at 7, otherwise it generates an INT beyond PHP_INT_MAX for that system
+		$hash = substr($hash, 0, 7);
 		
 		$rand_index = hexdec($hash) % count($this->agents);
 
