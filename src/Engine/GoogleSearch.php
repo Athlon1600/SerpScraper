@@ -161,8 +161,9 @@ class GoogleSearch extends SearchEngine {
 	
 	public function solveCaptcha(CaptchaSolver $solver){
 		
-		$continue = rawurlencode('http://www.'.$this->preferences['google_domain'].'/search?q=gmail');
+		$continue = rawurlencode('http://www.'.$this->preferences['google_domain'].'/search?q=facebook');
 		
+		// will give "Your client does not have permission" if IP is not yet blocked...
 		$captcha_html = $this->client->get('http://ipv4.google.com/sorry/IndexRedirect?continue='.$continue, array('exceptions' => false));
 		
 		// extract form values for submission

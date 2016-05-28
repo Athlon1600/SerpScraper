@@ -11,12 +11,12 @@ from all major search engines such as Google and Bing.
 use SerpScraper\Engine\GoogleSearch;
 
 use SerpScraper\Captcha\CaptchaSolver;
-use SerpScraper\Captcha\DBCSolver;
+use SerpScraper\Captcha\DeathByCaptcha;
 
 $page = 1;
 
 // assuming you have a subscription  to this captcha solving service: http://www.deathbycaptcha.com
-$dbc = new DBCSolver("username", "password");
+$dbc = new DeathByCaptcha("username", "password");
 	
 $google = new GoogleSearch();
 
