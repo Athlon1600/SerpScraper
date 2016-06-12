@@ -19,8 +19,20 @@ class GoogleSearch extends SearchEngine {
 			CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
 		));
 		
-		$this->preferences['results_per_page'] = 100;
-		$this->preferences['google_domain'] = 'google.com';
+		// Set default preferences
+		$this->preferences = array(
+			'results_per_page' => 100,
+			'google_domain' => 'google.com',
+			'hl' => 'en', // web interface language code
+			'lr' => 'lang_en', // search language code
+			'ie' => 'utf-8', // character encoding scheme for query string.
+			'oe' => 'utf-8', // character encoding scheme decode XML results
+			'gbv' => 1, // no javascript
+			'pws' => 0, // do not personalize my search results
+			'nfrpr' => 1, // do not auto correct my search queries
+			'complete' => 0, // 0 to disable instant search and enable more than 10 results
+		);
+
 	}
 	
 	private function getNextPage($html){
@@ -69,13 +81,15 @@ class GoogleSearch extends SearchEngine {
 			'q' => $query,
 			'start' => ($page-1)*$results_per_page,
 			'client' => 'navclient', // probably useless
-			'gbv' => 1, // no javascript
-			'complete' => 0, // 0 to disable instant search and enable more than 10 results
+			'gbv' => $gbv, // no javascript
+			'complete' => $complete, // 0 to disable instant search and enable more than 10 results
 			'num' => $results_per_page, // number of results
-			'pws' => 0, // do not personalize my search results
-			'nfrpr' => 1, // do not auto correct my search queries
-			'ie' => 'utf-8',
-			'oe' => 'utf-8'
+			'pws' => $pws, // do not personalize my search results
+			'nfrpr' => $nfrpr, // do not auto correct my search queries
+			'ie' => $ie, // character encoding scheme for query string.
+			'oe' => $oe, // character encoding scheme decode XML results
+			'hl' => $hl, // web interface language code
+			'lr' => $lr // search language code
 		);
 		
 		if(isset($this->preferences['date_range'])){
