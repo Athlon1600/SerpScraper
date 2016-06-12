@@ -22,8 +22,20 @@ $google = new GoogleSearch();
 
 // all available preferences for Google
 $google->setPreference('results_per_page', 100);
-//$google->setPreference('google_domain', 'google.lt');
+
+//$google->setPreference('google_domain', 'google.com');
 //$google->setPreference('date_range', 'hour');
+
+//$google->setPreference('hl', 'en'); // web interface language code
+//$google->setPreference('lr', 'lang_en'); // search language code
+
+//$google->setPreference('ie', 'utf-8'); // character encoding scheme for query string.
+//$google->setPreference('oe', 'utf-8'); // character encoding scheme decode XML results
+
+//$google->setPreference('gbv', 1); // no javascript
+//$google->setPreference('pws', 0); // do not personalize my search results
+//$google->setPreference('nfrpr', 1); // do not auto correct my search queries
+//$google->setPreference('complete', 0); // 0 to disable instant search and enable more than 10 results
 
 $results = array();
 
