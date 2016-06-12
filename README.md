@@ -40,11 +40,7 @@ do {
 	} else if($response->error == 'captcha'){
 	
 		$status = $google->solveCaptcha($dbc);
-		
-		if($status){
-			$page++;
-		}
-		
+
 		continue;
 		
 	}
