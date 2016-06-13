@@ -78,6 +78,8 @@ class GoogleSearch extends SearchEngine {
 			'oe' => 'utf-8'
 		);
 		
+		$vars = array_merge($vars, (array)$preferences['query_params']);
+		
 		if(isset($this->preferences['date_range'])){
 		
 			$str = substr($this->preferences['date_range'], 0, 1);
