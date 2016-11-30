@@ -14,11 +14,6 @@ class GoogleSearch extends SearchEngine {
 	function __construct(){
 		parent::__construct();
 		
-		// sometimes google routes the connection through IPv6 which just makes this more difficult to deal with - force it to always use IPv4
-		$this->client->setDefaultOption('config/curl', array(
-			CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
-		));
-		
 		$this->preferences['results_per_page'] = 100;
 		$this->preferences['google_domain'] = 'google.com';
 	}
@@ -78,7 +73,7 @@ class GoogleSearch extends SearchEngine {
 			'oe' => 'utf-8'
 		);
 		
-		$vars = array_merge($vars, (array)$preferences['query_params']);
+		$vars = @array_merge($vars, (array)$this->preferences['query_params']);
 		
 		if(isset($this->preferences['date_range'])){
 		

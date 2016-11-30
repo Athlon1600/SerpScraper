@@ -35,37 +35,34 @@ abstract class SearchEngine {
 		"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)"
 	);
 	
-	function __construct(){
+	// default request options to be used with each client request
+	protected $default_options = array();
 	
-		// init guzzle client!
-		$this->client = new Client();
+	function __construct(){
 		
-		// request options
-		$options = array();
-
 		// user-agent will be set by setProfileID
-		$options['headers'] = array(
+		$this->default_options['headers'] = array(
 			'Accept' => '*/*',
 			'Accept-Encoding' => 'gzip, deflate',
 			'Connection' => 'Keep-Alive'
 		);
 		
-		// init options
-		foreach($options as $key => $val){
-			$this->client->setDefaultOption($key, $val);
-		}
-		
 		// let's put some timeouts in case of slow proxies
-		$this->client->setDefaultOption('config/curl', array(
+		$this->default_options['curl'] = array(
 			CURLOPT_CONNECTTIMEOUT => 10,
-			CURLOPT_TIMEOUT => 15
-		));
+			CURLOPT_TIMEOUT => 15,
+			// sometimes google routes the connection through IPv6 which just makes this more difficult to deal with - force it to always use IPv4
+			CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
+		);
 		
-		// get_current_user()
+		// where should we store the cookies for this search client instance? get_current_user()
 		$this->setCookieDir(sys_get_temp_dir());
 		
-		// this will create an empty cookie
+		// this will create an empty cookie profile
 		$this->setProfileID('default');
+		
+		// init guzzle client!
+		$this->reloadClient();
 	}
 	
 	public abstract function search($query, $page_num);
@@ -74,19 +71,26 @@ abstract class SearchEngine {
 		$this->preferences[$name] = $value;
 	}
 	
+	final private function reloadClient(){
+		$this->client = new Client($this->default_options);
+	}
+	
 	// proxy must be in username:password@IP:Port format
 	final public function setProxy($proxy, $new_profile = true){
 		
-		$this->client->setDefaultOption('proxy', $proxy);
+		$this->default_options['proxy'] = $proxy;
 		
 		// do we want to use a different cookie profile for this proxy?
 		if($new_profile){
 			$this->setProfileID($proxy);
 		}
+		
+		$this->reloadClient();
 	}
 	
 	final public function disableProxy(){
-		$this->client->setDefaultOption('proxy', false);
+		$this->default_options['proxy'] = false;
+		$this->reloadClient();
 	}
 	
 	final public function setCookieDir($cookie_dir){
@@ -120,7 +124,7 @@ abstract class SearchEngine {
 
 		// set it
 		$agent = $this->agents[$rand_index];
-		$this->client->setDefaultOption('headers/User-Agent', $agent); 
+		$this->default_options['headers']['User-Agent'] = $agent;
 		
 		// generate cookie file based on profile_id
 		$cookie_file = $this->cookie_dir.'/'.$this->cookie_prefix.$this->profile_id.'.json';
@@ -130,7 +134,10 @@ abstract class SearchEngine {
 		// cookies will be stored here
 		$jar = new FileCookieJar($cookie_file);
 		
-		$this->client->setDefaultOption('cookies', $jar);
+		//$this->client->setDefaultOption('cookies', $jar);
+		$this->default_options['cookies'] = $jar;
+		
+		$this->reloadClient();
 	}
 }
 
