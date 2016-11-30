@@ -6,6 +6,7 @@ use SerpScraper\Engine\SearchEngine;
 use SerpScraper\SearchResponse;
 use SerpScraper\Captcha\CaptchaSolver;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\TransferStats;
 
 class GoogleSearch extends SearchEngine {
 
@@ -118,10 +119,19 @@ class GoogleSearch extends SearchEngine {
 		
 		$sr = new SearchResponse();
 		
+		// store last URL accessed:
+		$last_effective_url = '';
+		
 		try {
 		
 			// fetch response
-			$response = $this->client->get($url);
+			$response = $this->client->request('GET', $url, array(
+				'on_stats' => function(TransferStats $stats) use (&$last_effective_url) {
+					$last_effective_url = $stats->getEffectiveUri();
+				}
+			));
+			
+			
 			$html = $response->getBody();
 			
 			$sr->html = $html;
@@ -144,7 +154,7 @@ class GoogleSearch extends SearchEngine {
 				// captcha found!
 				if($status_code == 503){
 					$sr->error = 'captcha';
-					$this->last_captcha_url = $response->getEffectiveUrl();
+					$this->last_captcha_url = $last_effective_url;
 				} else {
 					$sr->error = $status_code;
 				}
