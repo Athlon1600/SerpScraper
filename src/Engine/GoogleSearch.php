@@ -181,7 +181,7 @@ class GoogleSearch extends SearchEngine {
 		// TODO: check to make sure we're really on a captcha page
 		
 		// extract form values for submission
-		if(preg_match('/<img src="([^"]+)"/', $captcha_html, $matches)){
+		if(preg_match('/<img src="([^"]+)"/', $captcha_html->getBody(), $matches)){
 		
 			// assumine PROTOCOL and HOST stay the same
 			$img_url = "http://ipv4.google.com/".htmlspecialchars_decode($matches[1]);
