@@ -127,7 +127,7 @@ class GoogleSearch extends SearchEngine {
 			// fetch response
 			$response = $this->client->request('GET', $url, array(
 				'on_stats' => function(TransferStats $stats) use (&$last_effective_url) {
-					$last_effective_url = $stats->getEffectiveUri();
+					$last_effective_url = (string)$stats->getEffectiveUri();
 				}
 			));
 			
@@ -212,7 +212,7 @@ class GoogleSearch extends SearchEngine {
 			
 			// submit form... hopefully this will set a cookie that will let you search again without throwing captcha
 			// GOOGLE_ABUSE_EXEMPTION lasts 3 hours
-			$response = $this->client->get('http://ipv4.google.com/sorry/CaptchaRedirect?'.http_build_query($data), array('exceptions' => false));
+			$response = $this->client->get('http://ipv4.google.com/sorry/index?'.http_build_query($data), array('exceptions' => false));
 		
 			return $response->getStatusCode() == 200;
 		}
