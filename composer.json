@@ -4,14 +4,15 @@
 	"keywords": ["google scraper", "bing scraper", "google search", "bing search", "google captcha solver", "google proxy"],
 	"license": "MIT",
 	"require": {
-		"guzzlehttp/guzzle": "~6.0"
+		"ext-curl": "*"
 	},
 	"autoload": {
 		"psr-4": {
 			"SerpScraper\\": "src/"
 		},
 		"files": [
-			"src/Captcha/dbc_api.php"
+			"src/Captcha/dbc_api.php",
+			"src/Curl.php"
 		]
 	}
 }

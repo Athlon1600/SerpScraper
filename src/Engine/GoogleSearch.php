@@ -5,8 +5,6 @@ namespace SerpScraper\Engine;
 use SerpScraper\Engine\SearchEngine;
 use SerpScraper\SearchResponse;
 use SerpScraper\Captcha\CaptchaSolver;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\TransferStats;
 
 class GoogleSearch extends SearchEngine {
 
@@ -94,6 +92,9 @@ class GoogleSearch extends SearchEngine {
 	// visits a special URL that disables ALL country redirects 
 	function ncr(){
 	
+		return;
+		
+		/*
 		// check if /ncr cookie has already been set
 		$ncr = false;
 		
@@ -111,26 +112,19 @@ class GoogleSearch extends SearchEngine {
 		if(!$ncr){
 			$this->client->get('http://www.google.com/ncr');
 		}
+		*/
 	}
-	 
+	
 	function search($query, $page_num = 1){
 	
 		$url = $this->prepare_url($query, $page_num);
 		
 		$sr = new SearchResponse();
 		
-		// store last URL accessed:
-		$last_effective_url = '';
+		// fetch response
+		$response = $this->client->get($url);
 		
-		try {
-		
-			// fetch response
-			$response = $this->client->request('GET', $url, array(
-				'on_stats' => function(TransferStats $stats) use (&$last_effective_url) {
-					$last_effective_url = (string)$stats->getEffectiveUri();
-				}
-			));
-			
+		if($response && $response->getStatusCode() == 200){
 			
 			$html = $response->getBody();
 			
@@ -142,28 +136,17 @@ class GoogleSearch extends SearchEngine {
 			// is there another page of results for this query?
 			$sr->has_next_page = $this->getNextPage($html) == true;
 			
-		} catch (RequestException $ex){
+		} else if($response && $response->getStatusCode() == 503){
 			
-			if($ex->hasResponse()){
-				
-				$response = $ex->getResponse();
-				
-				// status code and phrase
-				$status_code = $response->getStatusCode();
-				
-				// captcha found!
-				if($status_code == 503){
-					$sr->error = 'captcha';
-					$this->last_captcha_url = $last_effective_url;
-				} else {
-					$sr->error = $status_code;
-				}
-				
-			} else {
+			$info = $response->getCurlInfo();
 			
-				// http timeout - host not found type errors...
-				$sr->error = $ex->getMessage();
-			}
+			$sr->error = 'captcha';
+			$this->last_captcha_url = $info['url'];
+			
+		} else {
+			
+			// http timeout - host not found type errors...
+			$sr->error = $this->client->error;
 		}
 		
 		return $sr;
@@ -176,12 +159,12 @@ class GoogleSearch extends SearchEngine {
 			return false;
 		}
 		
-		$captcha_html = $this->client->get($this->last_captcha_url, array('exceptions' => false));
+		$response = $this->client->get($this->last_captcha_url);
 		
 		// TODO: check to make sure we're really on a captcha page
 		
 		// extract form values for submission
-		if(preg_match('/<img src="([^"]+)"/', $captcha_html->getBody(), $matches)){
+		if($response && preg_match('/<img src="([^"]+)"/', $response->getBody(), $matches)){
 		
 			// assumine PROTOCOL and HOST stay the same
 			$img_url = "http://ipv4.google.com/".htmlspecialchars_decode($matches[1]);
@@ -193,7 +176,7 @@ class GoogleSearch extends SearchEngine {
 			parse_str($query, $vars);
 			
 			// download captcha image
-			$response = $this->client->get($img_url, array('exceptions' => false));
+			$response = $this->client->get($img_url);
 			
 			// get raw bytes
 			$img_bytes = $response->getBody();
@@ -212,9 +195,9 @@ class GoogleSearch extends SearchEngine {
 			
 			// submit form... hopefully this will set a cookie that will let you search again without throwing captcha
 			// GOOGLE_ABUSE_EXEMPTION lasts 3 hours
-			$response = $this->client->get('http://ipv4.google.com/sorry/index?'.http_build_query($data), array('exceptions' => false));
-		
-			return $response->getStatusCode() == 200;
+			$response = $this->client->get('http://ipv4.google.com/sorry/index?'.http_build_query($data));
+			
+			return $response && $response->getStatusCode() == 200;
 		}
 		
 		return false;
