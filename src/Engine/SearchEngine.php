@@ -3,8 +3,8 @@
 namespace SerpScraper\Engine;
 
 abstract class SearchEngine {
-
-	public $client;
+	
+	protected $client;
 	protected $preferences = array();
 	
 	// default request options to be used with each client request
@@ -34,6 +34,10 @@ abstract class SearchEngine {
 		
 		$this->client->setHeader($headers);
 		$this->client->setCurlOption($curl);
+	}
+	
+	public function setProxy($proxy){
+		$this->client->setProxy($proxy);
 	}
 	
 	public abstract function search($query, $page_num);
