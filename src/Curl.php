@@ -153,7 +153,7 @@ class Curl {
 	}
 	
 	// proxy must be in username:password@IP:Port format
-	function setProxy($proxy, $new_profile_id = true){
+	function setProxy($proxy, $new_profile = true){
 		
 		if($proxy == false){
 			$this->options[CURLOPT_PROXY] = null;
