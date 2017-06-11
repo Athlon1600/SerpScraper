@@ -42,6 +42,28 @@ class GoogleSearch extends SearchEngine {
 	
 	private function extractResults($raw_html){
 	
+		// TODO: maybe do it in blocks? extract result blocks first? <div class="g">
+		if(isset($this->preferences['detailed_results']) ){
+			
+			$ret = array();
+			
+			if(preg_match_all('/<h3 class="r"><a href="([^"]*http[^"]+)"[^>]*>(.*?)<\/a.*?<span class="st">(.*?)<\/span>/is', $raw_html, $matches) > 0){
+				
+				for($i=0; $i<count($matches[0]); $i++){
+					
+					$ret[] = array(
+						'url' => $this->decodeLink($matches[1][$i]),
+						'title' => $matches[2][$i],
+						'snippet' => $matches[3][$i]
+					);
+				}
+				
+				return $ret;
+			} else {	
+				return array();
+			}
+		}
+		
 		// must contain http otherwise it's a relative link to google which we're not interested in
 		if(preg_match_all('/<h3 class="r"><a href="([^"]*http[^"]*)"/i', $raw_html, $matches) > 0){
 		
@@ -67,7 +89,7 @@ class GoogleSearch extends SearchEngine {
 			'complete' => 0, // 0 to disable instant search and enable more than 10 results
 			'num' => $results_per_page, // number of results
 			'pws' => 0, // do not personalize my search results
-			'nfrpr' => 1, // do not auto correct my search queries
+			'nfpr' => 1, // do not auto correct my search queries
 			'ie' => 'utf-8',
 			'oe' => 'utf-8'
 		);
