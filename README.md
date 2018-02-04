@@ -34,7 +34,7 @@ do {
 	// error field must be empty otherwise query failed
 	if($response->error == false){
 	
-		$results[] = $response->results;
+		$results = array_merge($results, $response->results);
 		$page++;
 	
 	} else if($response->error == 'captcha'){
@@ -53,11 +53,36 @@ do {
 
 ```
 
+## Extract Search Results from Bing
+
+```php
+
+use SerpScraper\Engine\BingSearch;
+
+$bing = new BingSearch();
+$results = array();
+
+for($page = 1; $page < 10; $page++){
+	
+	$response = $bing->search("search bing using php", $page);
+	if($response->error == false){
+		$results = array_merge($results, $response->results);
+	}
+	
+	if($response->has_next_page == false){
+		break;
+	}
+}
+
+var_dump($results);
+
+```
+
 
 ## Installation
 
 The recommended way to install this is via Composer:
 
 ```bash
-composer require athlon1600/serpscraper:dev-master
+composer require athlon1600/serpscraper
 ```
