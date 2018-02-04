@@ -11,8 +11,7 @@
 			"SerpScraper\\": "src/"
 		},
 		"files": [
-			"src/Captcha/dbc_api.php",
-			"src/Curl.php"
+			"src/Captcha/dbc_api.php"
 		]
 	}
 }

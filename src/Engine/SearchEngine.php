@@ -2,6 +2,8 @@
 
 namespace SerpScraper\Engine;
 
+use SerpScraper\Curl;
+
 abstract class SearchEngine {
 	
 	protected $client;
@@ -13,7 +15,7 @@ abstract class SearchEngine {
 	function __construct(){
 		
 		// we use it!
-		$this->client = new \Curl();
+		$this->client = new Curl();
 		
 		// where should we store the cookies for this search client instance? get_current_user()
 		$this->client->setCookieDir(sys_get_temp_dir());

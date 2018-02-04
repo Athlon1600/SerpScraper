@@ -42,7 +42,7 @@ class BingSearch extends SearchEngine {
 				}
 				
 				// submit the form and get the cookie that determines the number of results per page
-				$this->client->get("http://www.bing.com/account/web", array('query' => $options), array());
+				$this->client->get("http://www.bing.com/account/web?".http_build_query($options) );
 			}
 		
 		} catch (RequestException $ex){
@@ -95,7 +95,7 @@ class BingSearch extends SearchEngine {
 		// result ID=SERP,5167.1
 		// result ID=SERP,5151.1	
 		
-		preg_match_all('/<h3><a href="([^"]+)" h="ID=SERP,[0-9]{4}\.1"/', $html, $matches);
+		preg_match_all('/<h2><a href="([^"]+)"\s*h="ID=SERP,[0-9]{4}\.1"/', $html, $matches);
 		
 		return $matches ? $matches[1] : array();
 	}
