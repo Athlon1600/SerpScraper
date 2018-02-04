@@ -106,7 +106,7 @@ class BingSearch extends SearchEngine {
 		$start = ($page-1) * $this->preferences['results_per_page'] + 1;
 		
 		try {
-		
+			$query = rawurlencode($query);
 			$response = $this->client->get("http://www.bing.com/search?q={$query}&first={$start}");
 			
 			// get HTML body
