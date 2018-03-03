@@ -1,6 +1,17 @@
 SerpScraper
 ===========
 
+###  --- reCAPTCHA V2 -- Feb 10, 2018
+
+```
+
+Google Search no longer uses its image-based captcha.
+It has now moved on to its new reCAPTCHA v2 which makes it very difficult for robots and scripts to bypass.
+We're looking for a solution. Stay tuned.
+
+```
+
+
 The purpose of this library is to provide an easy, undetectable, and captcha resistant way to extract data
 from all major search engines such as Google and Bing.
 
@@ -34,7 +45,7 @@ do {
 	// error field must be empty otherwise query failed
 	if($response->error == false){
 	
-		$results[] = $response->results;
+		$results = array_merge($results, $response->results);
 		$page++;
 	
 	} else if($response->error == 'captcha'){
@@ -53,11 +64,36 @@ do {
 
 ```
 
+## Extract Search Results from Bing
+
+```php
+
+use SerpScraper\Engine\BingSearch;
+
+$bing = new BingSearch();
+$results = array();
+
+for($page = 1; $page < 10; $page++){
+	
+	$response = $bing->search("search bing using php", $page);
+	if($response->error == false){
+		$results = array_merge($results, $response->results);
+	}
+	
+	if($response->has_next_page == false){
+		break;
+	}
+}
+
+var_dump($results);
+
+```
+
 
 ## Installation
 
 The recommended way to install this is via Composer:
 
 ```bash
-composer require athlon1600/serpscraper:dev-master
+composer require athlon1600/serpscraper
 ```
