@@ -1,15 +1,13 @@
 SerpScraper
 ===========
 
-###  --- reCAPTCHA V2 -- Feb 10, 2018
+###  --- reCAPTCHA V2 -- ~~Feb 10, 2018~~ -- Fixed on March 3, 2018
 
-```
 
-Google Search no longer uses its image-based captcha.
-It has now moved on to its new reCAPTCHA v2 which makes it very difficult for robots and scripts to bypass.
-We're looking for a solution. Stay tuned.
+~~Google Search no longer uses its image-based captcha.~~  
+~~It has now moved on to its new reCAPTCHA v2 which makes it very difficult for robots and scripts to bypass.~~  
+~~We're looking for a solution. Stay tuned.~~
 
-```
 
 
 The purpose of this library is to provide an easy, undetectable, and captcha resistant way to extract data
@@ -21,13 +19,7 @@ from all major search engines such as Google and Bing.
 
 use SerpScraper\Engine\GoogleSearch;
 
-use SerpScraper\Captcha\CaptchaSolver;
-use SerpScraper\Captcha\DBCSolver;
-
 $page = 1;
-
-// assuming you have a subscription  to this captcha solving service: http://www.deathbycaptcha.com
-$dbc = new DBCSolver("username", "password");
 	
 $google = new GoogleSearch();
 
@@ -50,7 +42,8 @@ do {
 	
 	} else if($response->error == 'captcha'){
 	
-		$status = $google->solveCaptcha($dbc);
+		// assuming you have a subscription  to this captcha solving service: http://www.deathbycaptcha.com
+		$status = $google->solveCaptcha("dbc_username", "dbc_password");
 		
 		if($status){
 			$page++;
