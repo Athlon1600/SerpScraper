@@ -4,11 +4,10 @@ namespace SerpScraper\Engine;
 
 use SerpScraper\Engine\SearchEngine;
 use SerpScraper\SearchResponse;
-use SerpScraper\Captcha\CaptchaSolver;
 
 class GoogleSearch extends SearchEngine {
 
-	private $last_captcha_url = '';
+	public $last_captcha_url = '';
 	
 	function __construct(){
 		parent::__construct();
@@ -174,7 +173,7 @@ class GoogleSearch extends SearchEngine {
 		return $sr;
 	}
 	
-	public function solveCaptcha(CaptchaSolver $solver){
+	public function solveCaptcha($dbc_username, $dbc_password){
 		
 		// once request is made, a new LAST_CAPTCHA_URL must be generated for it to work
 		if(!$this->last_captcha_url){
@@ -182,44 +181,47 @@ class GoogleSearch extends SearchEngine {
 		}
 		
 		$response = $this->client->get($this->last_captcha_url);
+		$body = $response->getBody();
 		
-		// TODO: check to make sure we're really on a captcha page
-		
-		// extract form values for submission
-		if($response && preg_match('/<img src="([^"]+)"/', $response->getBody(), $matches)){
-		
-			// assumine PROTOCOL and HOST stay the same
-			$img_url = "http://ipv4.google.com/".htmlspecialchars_decode($matches[1]);
+		if(preg_match('/sitekey="([^"]+)"/', $body, $matches)){
+			$key = $matches[1];
 			
-			// extract additional data from image query string
-			$query = parse_url($img_url, PHP_URL_QUERY);
+			$client = new \DeathByCaptcha_HttpClient($dbc_username, $dbc_password);
+			$client->is_verbose = false;
 			
-			$vars = array();
-			parse_str($query, $vars);
-			
-			// download captcha image
-			$response = $this->client->get($img_url);
-			
-			// get raw bytes
-			$img_bytes = $response->getBody();
-			
-			// read text from image
-			$text = $solver->solve($img_bytes);
-			
-			// form data
 			$data = array(
-				'q' => $vars['q'],
-				'continue' => $vars['continue'],
-				'id' => $vars['id'],
-				'captcha' => $text,
-				'submit' => 'Submit'
+				'googlekey' => $key,
+				'pageurl' => $this->last_captcha_url
 			);
 			
-			// submit form... hopefully this will set a cookie that will let you search again without throwing captcha
-			// GOOGLE_ABUSE_EXEMPTION lasts 3 hours
-			$response = $this->client->get('http://ipv4.google.com/sorry/index?'.http_build_query($data));
+			$extra = array(
+				'type' => 4,
+				'token_params' => json_encode($data)
+			);
 			
-			return $response && $response->getStatusCode() == 200;
+			$captcha = $client->decode(null, $extra);
+			
+			// we wait?
+			sleep(mt_rand(1, 3));
+			
+			if($text = $client->get_text($captcha['captcha']) ){
+				//echo "CAPTCHA {$captcha['captcha']} solved: {$text}\n";
+				
+				$q = '';
+				if(preg_match("/name='q'\s*value='([^']+)/is", $body, $matches)){
+					$q = $matches[1];
+				}
+				
+				$post_data = array(
+					'continue' => 'https://www.google.com/search?q=dragon',
+					'g-recaptcha-response' => $text,
+					'q' => $q,
+					'submit' => 'Submit'
+				);
+				
+				$res = $this->client->post('http://ipv4.google.com/sorry/index', $post_data);
+				return true;
+			}
 		}
 		
 		return false;

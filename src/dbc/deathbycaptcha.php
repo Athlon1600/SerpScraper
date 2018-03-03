@@ -94,10 +94,12 @@ class DeathByCaptcha_ServiceOverloadException extends DeathByCaptcha_ServerExcep
  */
 abstract class DeathByCaptcha_Client
 {
-    const API_VERSION = 'DBC/PHP v4.1.1';
+    const API_VERSION = 'DBC/PHP v4.5';
 
     const DEFAULT_TIMEOUT = 60;
-    const POLLS_INTERVAL = 5;
+    const DEFAULT_TOKEN_TIMEOUT = 120;
+    const POLLS_INTERVAL = array(1, 1, 2, 3, 2, 2, 3, 2, 2);
+    const DFLT_POLL_INTERVAL = 3;
 
 
     /**
@@ -249,18 +251,31 @@ abstract class DeathByCaptcha_Client
      * @param int $timeout Optional solving timeout (in seconds)
      * @return array|null CAPTCHA details hash on success
      */
-    public function decode($captcha, $extra=[], $timeout=self::DEFAULT_TIMEOUT)
+    public function decode($captcha=null, $extra=[], $timeout=null)
     {
         if (!$extra || !is_array($extra)){
             $extra = [];
         }
+        
+        if (is_null($timeout)){
+          if (is_null($captcha)){
+            $timeout = self::DEFAULT_TOKEN_TIMEOUT;
+          }
+          else {
+            $timeout = self::DEFAULT_TIMEOUT;
+          }
+        }
+
         $deadline = time() + (0 < $timeout ? $timeout : self::DEFAULT_TIMEOUT);
         if ($c = $this->upload(
                 $captcha,
                 $extra=$extra)
             ) {
+            $intvl_idx = 0; // POLLS_INTERVAL index
+
             while ($deadline > time() && $c && !$c['text']) {
-                sleep(self::POLLS_INTERVAL);
+                list($intvl, $intvl_idx) = $this->_get_poll_interval($intvl_idx);
+                sleep($intvl);
                 $c = $this->get_captcha($c['captcha']);
             }
             if ($c && $c['text'] && $c['is_correct']) {
@@ -308,6 +323,24 @@ abstract class DeathByCaptcha_Client
             return $this->get_balance();
         }
     }
+
+    /**
+     * @param int $idx index of POLLS_INTERVAL to be accessed
+     * @return array with interval and index
+     */
+    protected function _get_poll_interval($idx)
+    {
+      if (count(self::POLLS_INTERVAL) > $idx) {
+        $intvl = self::POLLS_INTERVAL[$idx];
+      }
+      else {
+        $intvl = self::DFLT_POLL_INTERVAL;
+      }
+      $idx++;
+
+      return array($intvl, $idx);
+    }
+
 }
 
 
@@ -357,6 +390,10 @@ class DeathByCaptcha_HttpClient extends DeathByCaptcha_Client
                     'User-Agent: ' . self::API_VERSION
                 )
             ));
+            
+            if ((version_compare(PHP_VERSION, '5.5') == 0)) {
+                curl_setopt($this->_conn, CURLOPT_SAFE_UPLOAD, true);
+            }
         }
 
         return $this;
@@ -486,32 +523,47 @@ class DeathByCaptcha_HttpClient extends DeathByCaptcha_Client
      * @see DeathByCaptcha_Client::upload()
      * @throws DeathByCaptcha_RuntimeException When failed to save CAPTCHA image to a temporary file
      */
-    public function upload($captcha, $extra=[])
+    public function upload($captcha=null, $extra=[])
     {
-        $img = $this->_load_captcha($captcha);
-        if($extra['banner']){
-            $banner = $this->_load_captcha($extra['banner']);
-            if ($this->_is_valid_captcha($banner)) {
-                $tmp_bn = tempnam(null, 'banner');
-                file_put_contents($tmp_bn, $banner);
-                $extra['banner'] = '@'.$tmp_bn;
-            }else{
-                $extra['banner'] = '';
+        if(null !== $captcha){
+            $img = $this->_load_captcha($captcha);
+            if($extra['banner']){
+                $banner = $this->_load_captcha($extra['banner']);
+                if ($this->_is_valid_captcha($banner)) {
+                    $tmp_bn = tempnam(null, 'banner');
+                    file_put_contents($tmp_bn, $banner);
+                    $extra['banner'] = '@'.$tmp_bn;
+                }else{
+                    $extra['banner'] = '';
+                }
             }
-        }
-        if ($this->_is_valid_captcha($img)) {
-            $tmp_fn = tempnam(null, 'captcha');
-            file_put_contents($tmp_fn, $img);
-            try {
-                $captcha = $this->_call('captcha', array_merge(
-                    ['captchafile' => '@'. $tmp_fn],
-                    $extra
-                ));
-            } catch (Exception $e) {
+            if ($this->_is_valid_captcha($img)) {
+                $tmp_fn = tempnam(null, 'captcha');
+                file_put_contents($tmp_fn, $img);
+                try {
+                    $captchafile = null;
+                    
+                    if (version_compare(PHP_VERSION, '5.5') <= 0) {
+                        $captchafile = '@'. $tmp_fn;
+                    } else {
+                        $captchafile = new CURLFile($tmp_fn);
+                    }
+
+                    $captcha = $this->_call('captcha', array_merge(
+                        ['captchafile' => $captchafile],
+                        $extra
+                    ));
+                } catch (Exception $e) {
+                    @unlink($tmp_fn);
+                    throw $e;
+                }
                 @unlink($tmp_fn);
-                throw $e;
             }
-            @unlink($tmp_fn);
+        }else{
+            $captcha = $this->_call('captcha', $extra);
+        }
+
+        if(null !== $captcha){
             if (0 < ($cid = (int)@$captcha['captcha'])) {
                 return array(
                     'captcha' => $cid,
@@ -794,20 +846,26 @@ class DeathByCaptcha_SocketClient extends DeathByCaptcha_Client
     /**
      * @see DeathByCaptcha_Client::get_user()
      */
-    public function upload($captcha, $extra=[])
+    public function upload($captcha=null, $extra=[])
     {
-        $img = $this->_load_captcha($captcha);
-        if ($this->_is_valid_captcha($img)) {
-            if (isset($extra['banner'])){
-                $extra['banner'] = $this->_load_captcha($extra['banner']);
-                if ($this->_is_valid_captcha($extra['banner'])){
-                    $extra['banner'] = base64_encode($extra['banner']);
+        if(null!==$captcha){
+            $img = $this->_load_captcha($captcha);
+            if ($this->_is_valid_captcha($img)) {
+                if ($extra['banner']){
+                    $extra['banner'] = $this->_load_captcha($extra['banner']);
+                    if ($this->_is_valid_captcha($extra['banner'])){
+                        $extra['banner'] = base64_encode($extra['banner']);
+                    }
                 }
+                $captcha = $this->_call('upload', array_merge(
+                    ['captcha' => base64_encode($img)],
+                    $extra
+                ));
             }
-            $captcha = $this->_call('upload', array_merge(
-                ['captcha' => base64_encode($img)],
-                $extra
-            ));
+        }elseif(sizeof($extra)>0){
+            $captcha = $this->_call('upload', $extra);
+        }
+        if (null!== $captcha){
             if (0 < ($cid = (int)@$captcha['captcha'])) {
                 return array(
                     'captcha' => $cid,

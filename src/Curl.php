@@ -140,7 +140,17 @@ class Curl {
 		}
 	}
 	
-	function get($url, $options = array()){
+	public function post($url, $data){
+		
+		$options = array();
+		$options[CURLOPT_POST] = 1;
+		$options[CURLOPT_POSTFIELDS] = $data;
+		
+		return $this->get($url, $options);
+	}
+	
+	// TODO: rename this method to request
+	public function get($url, $options = array()){
 		
 		// CURLOPT_HTTPGET
 		$this->handle = curl_init($url);
@@ -187,7 +197,7 @@ class Curl {
 		
 		// last of parts will always be body
 		$parts = explode("\r\n\r\n", $ret, $rc + 2);
-
+		
 		$headers = array_splice($parts, 0, $rc + 1);
 		$body = $parts[count($parts)-1];
 		
