@@ -227,5 +227,3 @@ class GoogleSearch extends SearchEngine {
 		return false;
 	}
 }
-
-?>
