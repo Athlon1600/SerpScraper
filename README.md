@@ -90,3 +90,9 @@ The recommended way to install this is via Composer:
 ```bash
 composer require athlon1600/serpscraper
 ```
+
+
+## TO-DO List
+
+- Support for Yahoo Search
+- Support for DuckDuckGo
