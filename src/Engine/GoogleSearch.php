@@ -96,14 +96,24 @@ class GoogleSearch extends SearchEngine {
 		$vars = @array_merge($vars, (array)$this->preferences['query_params']);
 		
 		if(isset($this->preferences['date_range'])){
-		
-			$str = substr($this->preferences['date_range'], 0, 1);
-			
-			if(in_array($str, array('h', 'd', 'w', 'm', 'y'))){
-				$vars['tbs'] = 'qdr:'.$str;
+			if(!is_array($this->preferences['date_range'])){ //check the value is array or not
+				$str = substr($this->preferences['date_range'], 0, 1);
+				
+				if(in_array($str, array('h', 'd', 'w', 'm', 'y'))){
+					$vars['tbs'] = 'qdr:'.$str;
+				}
+			}else{
+				//we add filter custom date range
+				//functional : for example we want to serp search result in 9/1/2007 until 7/1/2013
+				//For example the value $this->preferences['date_range'] is :
+				//array('minDate' => 'm/d/Y','maxDate' => 'm/d/Y');
+				$dateRangeValue = $this->preferences['date_range'];
+				$daterange_parse = "cdr:1,cd_min:" . $dateRangeValue['minDate'] . ",cd_max:" .$dateRangeValue['maxDate'];
+    				$vars['tbs'] = $daterange_parse;
 			}
 		}
 		
+	
 		// do query building ourselves to get the url
 		$url = 'http://www.'.$google_domain.'/search?'.http_build_query($vars, '', '&');
 		
