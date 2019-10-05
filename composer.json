@@ -13,5 +13,8 @@
 		"files": [
 			"src/dbc/deathbycaptcha.php"
 		]
+	},
+	"require-dev": {
+		"phpunit/phpunit": "8"
 	}
 }
