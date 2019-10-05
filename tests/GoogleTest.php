@@ -5,7 +5,7 @@ use SerpScraper\Engine\GoogleSearch;
 
 final class GoogleTest extends TestCase
 {
-    public function testGoogleSearch()
+    public function testSearch()
     {
         $google = new GoogleSearch();
         $res = $google->search('google');
