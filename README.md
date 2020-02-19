@@ -43,7 +43,7 @@ do {
 	} else if($response->error == 'captcha'){
 	
 		// assuming you have a subscription  to this captcha solving service: http://www.deathbycaptcha.com
-		$status = $google->solveCaptcha("dbc_username", "dbc_password");
+		$status = $google->solveCaptcha(new DBCSolver("dbc_username", "dbc_password");
 		
 		if($status){
 			$page++;
