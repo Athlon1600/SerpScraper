@@ -6,6 +6,10 @@
 	"require": {
 		"ext-curl": "*"
 	},
+	"scripts": {
+		"test": "phpunit tests",
+		"serve": "php -S localhost:8000"
+	},
 	"autoload": {
 		"psr-4": {
 			"SerpScraper\\": "src/"
