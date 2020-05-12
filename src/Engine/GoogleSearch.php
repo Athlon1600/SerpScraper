@@ -180,6 +180,8 @@ class GoogleSearch extends SearchEngine
 
         } else {
 
+            $sr->html = $response->getBody();
+
             // http timeout - host not found type errors...
             $sr->error = $this->client->error;
         }
