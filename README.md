@@ -1,6 +1,15 @@
 SerpScraper
 ===========
 
+
+## Installation
+
+The recommended way to install this is via Composer:
+
+```bash
+composer require Athlon1600/SerpScraper "^2.0"
+```
+
 ###  --- reCAPTCHA V2 -- ~~Feb 10, 2018~~ -- Fixed on March 3, 2018
 
 
@@ -81,18 +90,3 @@ for($page = 1; $page < 10; $page++){
 var_dump($results);
 
 ```
-
-
-## Installation
-
-The recommended way to install this is via Composer:
-
-```bash
-composer require athlon1600/serpscraper
-```
-
-
-## TO-DO List
-
-- Support for Yahoo Search
-- Support for DuckDuckGo
