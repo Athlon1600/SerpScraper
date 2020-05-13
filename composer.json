@@ -4,7 +4,8 @@
 	"keywords": ["google scraper", "bing scraper", "google search", "bing search", "google captcha solver", "google proxy"],
 	"license": "MIT",
 	"require": {
-		"ext-curl": "*"
+		"ext-curl": "*",
+		"athlon1600/php-curl-client": "^1.1"
 	},
 	"scripts": {
 		"test": "phpunit tests",

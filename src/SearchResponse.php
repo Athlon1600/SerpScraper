@@ -2,13 +2,15 @@
 
 namespace SerpScraper;
 
+use Curl\Response;
+
 class SearchResponse
 {
     // empty if everything went as expected, otherwise contains error string or 'captcha' if captcha
     public $error = '';
 
     // full html source from that page
-    public $html = '';
+    protected $curl_response = '';
 
     // true or false whether it has a next page
     public $has_next_page = false;
@@ -16,9 +18,18 @@ class SearchResponse
     // array starting at pos=1 of search results
     public $results = array();
 
-    public function __construct()
+    /**
+     * SearchResponse constructor.
+     * @param Response $curl_response
+     */
+    public function __construct($curl_response = null)
     {
-        // do nothing
+        $this->curl_response = $curl_response;
+    }
+
+    public function getCurlResponse()
+    {
+        return $this->curl_response;
     }
 
     public function __toString()

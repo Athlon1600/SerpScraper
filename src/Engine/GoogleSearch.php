@@ -6,8 +6,6 @@ use SerpScraper\SearchResponse;
 
 class GoogleSearch extends SearchEngine
 {
-    public $last_captcha_url = '';
-
     function __construct()
     {
         parent::__construct();
@@ -126,120 +124,39 @@ class GoogleSearch extends SearchEngine
     // visits a special URL that disables ALL country redirects
     function ncr()
     {
-
-        return;
-
-        /*
-        // check if /ncr cookie has already been set
-        $ncr = false;
-
-        // the cookie we're looking for should have these options: FF=0:LD=en:CR=2
-        $cookies = $this->client->getDefaultOption('cookies')->toArray();
-
-        foreach($cookies as $cookie){
-
-            if($cookie['Domain'] == '.google.com' && $cookie['Name'] == 'PREF' && strpos($cookie['Value'], 'CR=2') !== false){
-                $ncr = true;
-                break;
-            }
-        }
-
-        if(!$ncr){
-            $this->client->get('http://www.google.com/ncr');
-        }
-        */
+        $this->browser->get('https://www.google.com/ncr');
     }
 
     function search($query, $page_num = 1)
     {
         $url = $this->prepare_url($query, $page_num);
 
-        $sr = new SearchResponse();
-
         // fetch response
-        $response = $this->client->get($url);
+        $curl_response = $this->browser->get($url);
 
-        if ($response && $response->getStatusCode() == 200) {
+        $response = new SearchResponse($curl_response);
+        $html = $curl_response->body;
 
-            $html = $response->getBody();
-
-            $sr->html = $html;
+        if ($curl_response->status == 200) {
 
             // extract urls
-            $sr->results = $this->extractResults($html);
+            $response->results = $this->extractResults($html);
 
             // is there another page of results for this query?
-            $sr->has_next_page = $this->getNextPage($html) == true;
-
-        } else if ($response && $response->getStatusCode() == 503) {
-
-            $info = $response->getCurlInfo();
-
-            $sr->error = 'captcha';
-            $this->last_captcha_url = $info['url'];
+            $response->has_next_page = $this->getNextPage($html) == true;
 
         } else {
 
-            $sr->html = $response->getBody();
-
-            // http timeout - host not found type errors...
-            $sr->error = $this->client->error;
-        }
-
-        return $sr;
-    }
-
-    public function solveCaptcha($dbc_username, $dbc_password)
-    {
-        // once request is made, a new LAST_CAPTCHA_URL must be generated for it to work
-        if (!$this->last_captcha_url) {
-            return false;
-        }
-
-        $response = $this->client->get($this->last_captcha_url);
-        $body = $response->getBody();
-
-        if (preg_match('/sitekey="([^"]+)"/', $body, $matches)) {
-            $key = $matches[1];
-
-            $client = new \DeathByCaptcha_HttpClient($dbc_username, $dbc_password);
-            $client->is_verbose = false;
-
-            $data = array(
-                'googlekey' => $key,
-                'pageurl' => $this->last_captcha_url
-            );
-
-            $extra = array(
-                'type' => 4,
-                'token_params' => json_encode($data)
-            );
-
-            $captcha = $client->decode(null, $extra);
-
-            // we wait?
-            sleep(mt_rand(1, 3));
-
-            if ($text = $client->get_text($captcha['captcha'])) {
-                //echo "CAPTCHA {$captcha['captcha']} solved: {$text}\n";
-
-                $q = '';
-                if (preg_match("/name='q'\s*value='([^']+)/is", $body, $matches)) {
-                    $q = $matches[1];
-                }
-
-                $post_data = array(
-                    'continue' => 'https://www.google.com/search?q=dragon',
-                    'g-recaptcha-response' => $text,
-                    'q' => $q,
-                    'submit' => 'Submit'
-                );
-
-                $res = $this->client->post('http://ipv4.google.com/sorry/index', $post_data);
-                return true;
+            // something must have went wrong
+            if ($curl_response->status == 503) {
+                $response->error = 'captcha';
+            } else if ($curl_response->error) {
+                $response->error = $curl_response->error;
+            } else {
+                $response->error = 'Bad Http Status: ' . $curl_response->status;
             }
         }
 
-        return false;
+        return $response;
     }
 }

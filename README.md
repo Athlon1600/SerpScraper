@@ -1,18 +1,12 @@
 SerpScraper
 ===========
 
-###  --- reCAPTCHA V2 -- ~~Feb 10, 2018~~ -- Fixed on March 3, 2018
+The purpose of this library is to provide an easy, undetectable, and captcha resistant way to extract search results
+from popular search engines like Google and Bing.
 
-
-~~Google Search no longer uses its image-based captcha.~~  
-~~It has now moved on to its new reCAPTCHA v2 which makes it very difficult for robots and scripts to bypass.~~  
-~~We're looking for a solution. Stay tuned.~~
-
-
-
-The purpose of this library is to provide an easy, undetectable, and captcha resistant way to extract data
-from all major search engines such as Google and Bing.
-
+**Captcha solver status:**  
+still being built...
+  
 ## Extracting Search Results From Google
 
 ```php
@@ -91,8 +85,3 @@ The recommended way to install this is via Composer:
 composer require athlon1600/serpscraper
 ```
 
-
-## TO-DO List
-
-- Support for Yahoo Search
-- Support for DuckDuckGo
