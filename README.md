@@ -15,6 +15,9 @@ The recommended way to install this is via Composer:
 composer require athlon1600/serpscraper "^3.0"
 ```
 
+old version:  
+https://github.com/Athlon1600/SerpScraper/tree/2.x  
+
 ## Extracting Search Results From Google
 
 ```php
