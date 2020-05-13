@@ -6,11 +6,18 @@ from popular search engines like Google and Bing.
 
 **Captcha solver status:**  
 still being built...
-  
+
+## Installation
+
+The recommended way to install this is via Composer:
+
+```bash
+composer require athlon1600/serpscraper "^3.0"
+```
+
 ## Extracting Search Results From Google
 
 ```php
-
 use SerpScraper\Engine\GoogleSearch;
 
 $page = 1;
@@ -54,7 +61,6 @@ do {
 ## Extract Search Results from Bing
 
 ```php
-
 use SerpScraper\Engine\BingSearch;
 
 $bing = new BingSearch();
@@ -74,14 +80,5 @@ for($page = 1; $page < 10; $page++){
 
 var_dump($results);
 
-```
-
-
-## Installation
-
-The recommended way to install this is via Composer:
-
-```bash
-composer require athlon1600/serpscraper
 ```
 
