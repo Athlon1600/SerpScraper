@@ -8,7 +8,7 @@ final class GoogleTest extends TestCase
     public function testSearch()
     {
         $google = new GoogleSearch();
-        $res = $google->search('google');
+        $res = $google->search('something random');
 
         $this->assertGreaterThan(80, count($res->results));
     }

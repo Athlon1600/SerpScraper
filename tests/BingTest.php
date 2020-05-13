@@ -8,11 +8,19 @@ final class BingTest extends TestCase
     public function testSearch()
     {
         $bing = new BingSearch();
+        $response = $bing->search('google or bing');
+
+        $this->assertGreaterThan(0, count($response->results));
+    }
+
+    public function testSearchWithMoreResults()
+    {
+        $bing = new BingSearch();
         $bing->setPreference('results_per_page', 50);
 
-        $res = $bing->search('bing');
+        $response = $bing->search("bing versus google");
 
-        $this->assertEquals(10, count($res->results));
+        $this->assertGreaterThan(40, count($response->results));
     }
 }
 
