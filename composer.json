@@ -5,7 +5,8 @@
 	"license": "MIT",
 	"require": {
 		"ext-curl": "*",
-		"athlon1600/php-curl-client": "^1.1"
+		"athlon1600/php-curl-client": "^1.1",
+		"athlon1600/php-captcha-solver": "^1.0"
 	},
 	"scripts": {
 		"test": "phpunit tests",
@@ -14,7 +15,10 @@
 	"autoload": {
 		"psr-4": {
 			"SerpScraper\\": "src/"
-		}
+		},
+		"files": [
+			"src/global.php"
+		]
 	},
 	"require-dev": {
 		"phpunit/phpunit": "8"

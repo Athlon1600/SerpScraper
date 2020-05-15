@@ -116,7 +116,7 @@ class GoogleSearch extends SearchEngine
         }
 
         // do query building ourselves to get the url
-        $url = 'http://www.' . $google_domain . '/search?' . http_build_query($vars, '', '&');
+        $url = 'https://www.' . $google_domain . '/search?' . http_build_query($vars, '', '&');
 
         return $url;
     }
@@ -148,7 +148,7 @@ class GoogleSearch extends SearchEngine
         } else {
 
             // something must have went wrong
-            if ($curl_response->status == 503) {
+            if ($curl_response->status == 429) {
                 $response->error = 'captcha';
             } else if ($curl_response->error) {
                 $response->error = $curl_response->error;
