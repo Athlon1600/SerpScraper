@@ -6,7 +6,7 @@
 	"require": {
 		"ext-curl": "*",
 		"athlon1600/php-curl-client": "^1.1",
-		"athlon1600/php-captcha-solver": "^1.0"
+		"athlon1600/php-captcha-solver": "^2.0"
 	},
 	"scripts": {
 		"test": "phpunit tests",
