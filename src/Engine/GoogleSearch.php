@@ -71,7 +71,7 @@ class GoogleSearch extends SearchEngine
             foreach ($urls as $url) {
 
                 // these are Google-specific links
-                if (strpos($url, 'ved=2') === false) {
+                if (strpos($url, 'ved=2') !== false) {
                     continue;
                 }
 
