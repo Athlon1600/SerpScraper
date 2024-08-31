@@ -1,0 +1,28 @@
+name: Static Analysis
+
+on: [ push ]
+
+jobs:
+  static:
+    name: PHPStan using PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ ubuntu-latest ]
+        php-versions: [ '7.3', '7.4', '8.0', '8.1', '8.2', '8.3' ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: none
+
+      - name: Install dependencies
+        run: composer update --no-interaction --no-progress --prefer-dist
+
+      - name: Static analysis
+        run: vendor/bin/phpstan analyse src --level=1
