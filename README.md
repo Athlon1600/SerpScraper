@@ -1,4 +1,7 @@
 ![](https://img.shields.io/github/last-commit/Athlon1600/SerpScraper.svg) 
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Athlon1600/SerpScraper/static.yml)
+![PHP Versions](https://img.shields.io/badge/PHP%20Versions-%3E%3D7.3%20%7C%7C%20%5E8.0-blue)
+
 
 SerpScraper
 ===========
