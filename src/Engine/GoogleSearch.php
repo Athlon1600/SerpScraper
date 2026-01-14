@@ -2,6 +2,7 @@
 
 namespace SerpScraper\Engine;
 
+use Curl\UserAgents;
 use SerpScraper\SearchResponse;
 
 class GoogleSearch extends SearchEngine
@@ -12,6 +13,9 @@ class GoogleSearch extends SearchEngine
 
         $this->preferences['results_per_page'] = 100;
         $this->preferences['google_domain'] = 'google.com';
+
+        $agent = UserAgents::getRandomGsaUserAgent();
+        $this->getBrowser()->setUserAgent($agent);
     }
 
     private function getNextPage($html)
