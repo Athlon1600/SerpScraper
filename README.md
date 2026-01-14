@@ -1,5 +1,5 @@
-![](https://img.shields.io/github/last-commit/Athlon1600/SerpScraper.svg) 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Athlon1600/SerpScraper/static.yml)
+[![Static Analysis](https://github.com/Athlon1600/SerpScraper/actions/workflows/static.yml/badge.svg)](https://github.com/Athlon1600/SerpScraper/actions/workflows/static.yml)
+![](https://img.shields.io/github/last-commit/Athlon1600/SerpScraper.svg)
 ![PHP Versions](https://img.shields.io/badge/PHP%20Versions-%3E%3D7.3%20%7C%7C%20%5E8.0-blue)
 
 
@@ -29,7 +29,6 @@ $page = 1;
 $google = new GoogleSearch();
 
 // all available preferences for Google
-$google->setPreference('results_per_page', 100);
 //$google->setPreference('google_domain', 'google.lt');
 //$google->setPreference('date_range', 'hour');
 

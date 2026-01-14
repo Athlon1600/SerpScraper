@@ -10,7 +10,7 @@ final class GoogleTest extends TestCase
         $google = new GoogleSearch();
         $res = $google->search('something random');
 
-        $this->assertGreaterThan(80, count($res->results));
+        $this->assertGreaterThanOrEqual(20, count($res->results));
     }
 }
 

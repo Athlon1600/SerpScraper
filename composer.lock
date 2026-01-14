@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4d7e9fbb8743433d7da3b832f9bed064",
+    "content-hash": "87b337b4240cf2a23db6af9f3fbac5b4",
     "packages": [
         {
             "name": "athlon1600/php-captcha-solver",
@@ -47,24 +47,25 @@
         },
         {
             "name": "athlon1600/php-curl-client",
-            "version": "v1.1.1",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Athlon1600/php-curl-client.git",
-                "reference": "b65ddd8e865d82ce3cdb20ff406411aeabdaf75e"
+                "reference": "eff146de74ee3a4a9a7de1511e300b65b5c8efd2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Athlon1600/php-curl-client/zipball/b65ddd8e865d82ce3cdb20ff406411aeabdaf75e",
-                "reference": "b65ddd8e865d82ce3cdb20ff406411aeabdaf75e",
+                "url": "https://api.github.com/repos/Athlon1600/php-curl-client/zipball/eff146de74ee3a4a9a7de1511e300b65b5c8efd2",
+                "reference": "eff146de74ee3a4a9a7de1511e300b65b5c8efd2",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
-                "ext-json": "*"
+                "ext-json": "*",
+                "php": "^7.3|^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^7.0"
+                "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0"
             },
             "type": "library",
             "autoload": {
@@ -80,7 +81,11 @@
             "keywords": [
                 "php curl client"
             ],
-            "time": "2020-05-15T13:06:46+00:00"
+            "support": {
+                "issues": "https://github.com/Athlon1600/php-curl-client/issues",
+                "source": "https://github.com/Athlon1600/php-curl-client/tree/v1.2.0"
+            },
+            "time": "2023-10-24T23:17:09+00:00"
         }
     ],
     "packages-dev": [
