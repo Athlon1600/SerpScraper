@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"require": {
 		"ext-curl": "*",
-		"athlon1600/php-curl-client": "^v1.2.0",
+		"athlon1600/php-curl-client": "^v1.3",
 		"athlon1600/php-captcha-solver": "^2.0"
 	},
 	"scripts": {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "87b337b4240cf2a23db6af9f3fbac5b4",
+    "content-hash": "4b9c426528b05142284709bbb906e712",
     "packages": [
         {
             "name": "athlon1600/php-captcha-solver",
@@ -47,16 +47,16 @@
         },
         {
             "name": "athlon1600/php-curl-client",
-            "version": "v1.2.0",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Athlon1600/php-curl-client.git",
-                "reference": "eff146de74ee3a4a9a7de1511e300b65b5c8efd2"
+                "reference": "8782166b35c0c971db09d2c50907470d2828c372"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Athlon1600/php-curl-client/zipball/eff146de74ee3a4a9a7de1511e300b65b5c8efd2",
-                "reference": "eff146de74ee3a4a9a7de1511e300b65b5c8efd2",
+                "url": "https://api.github.com/repos/Athlon1600/php-curl-client/zipball/8782166b35c0c971db09d2c50907470d2828c372",
+                "reference": "8782166b35c0c971db09d2c50907470d2828c372",
                 "shasum": ""
             },
             "require": {
@@ -79,13 +79,16 @@
             ],
             "description": "Simple PHP cURL Client",
             "keywords": [
-                "php curl client"
+                "curl",
+                "http client",
+                "php curl client",
+                "php-curl"
             ],
             "support": {
                 "issues": "https://github.com/Athlon1600/php-curl-client/issues",
-                "source": "https://github.com/Athlon1600/php-curl-client/tree/v1.2.0"
+                "source": "https://github.com/Athlon1600/php-curl-client/tree/v1.3.0"
             },
-            "time": "2023-10-24T23:17:09+00:00"
+            "time": "2026-01-14T17:39:48+00:00"
         }
     ],
     "packages-dev": [
